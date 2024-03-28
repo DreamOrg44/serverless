@@ -1,5 +1,5 @@
 const functions = require('@google-cloud/functions-framework');
-const { verifyEmail } = require('./main')
+const { verifyEmail } = require('./emailVerification')
 
 
 functions.cloudEvent('verifyEmail', cloudEvent => {
