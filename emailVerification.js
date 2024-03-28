@@ -28,29 +28,25 @@ const pool = new Pool({
 // const transporter = nodemailer.createTransport({
 // });
 
-exports.verifyEmail = async (event, context) => {
+async function verifyEmail(cloudEvent) {
   try {
-    const message = event.data ? JSON.parse(Buffer.from(event.data, 'base64').toString()) : {};
+    const message = cloudEvent.data ? JSON.parse(Buffer.from(cloudEvent.data, 'base64').toString()) : {};
     const { userId, email } = message;
 
-    // Generate a verification token
-    // const token = jwt.sign({ userId, email }, process.env.JWT_SECRET, { expiresIn: '2m' });
     const token = uuidv4();
-
-    // Construct verification link
     const verificationLink = `http://rushikeshdeore.me/verify?token=${token}&userId=${userId}`;
-    // Send verification email
+
     await sendVerificationEmail(email, verificationLink);
 
     // Track the sent email in Cloud SQL
     await trackEmail(userId, email, verificationLink);
-
     console.log(`Verification email sent to ${email}`);
   } catch (error) {
     console.error('Error sending verification email:', error);
     throw new Error('Error sending verification email');
   }
-};
+}
+
 
 async function sendVerificationEmail(email, verificationLink) {
   const data = {
@@ -76,3 +72,7 @@ async function trackEmail(userId, email, verificationLink) {
   };
   await pool.query(query);
 }
+
+module.exports = {
+  verifyEmail,
+};
