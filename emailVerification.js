@@ -27,21 +27,32 @@ async function verifyEmail(userData) {
     await sendVerificationEmail(email, verificationLink);
 
     // Track the sent email in Cloud SQL
-    await trackEmail(id, email, verificationLink);
+    await trackEmail(id, email, verificationLink, token);
     console.log(`Verification email sent to ${email}`);
   } catch (error) {
-    console.error('Error sending verification email:', error);
-    throw new Error('Error sending verification email');
+    console.error('Error verifying the user:', error);
+    throw new Error('Error verifying the user:');
   }
 }
 
 
 async function sendVerificationEmail(email, verificationLink) {
+  console.log("Inside sendVerificationEmail and the values received are ", "email= ", email, "verificationLink= ", verificationLink);
   const data = {
-    from: "WebApp User <no-reply@${process.env.MAILGUN_DOMAIN}>",
+    from: `WebApp User <no-reply@${process.env.MAILGUN_DOMAIN}>`,
     to: email,
-    subject: "Verify Your Email Address",
-    html: `<p>Click <a href="${verificationLink}">here</a> to verify your email address.</p>`,
+    subject: "Verify Your Email Address for Webapp Access",
+    html: `<p>Click <a href="${verificationLink}" style="background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 10px;">Verify Your Email Address</a> to verify your email address.</p>`,
   };
 
   try {
@@ -53,10 +64,11 @@ async function sendVerificationEmail(email, verificationLink) {
   }
 }
 
-async function trackEmail(userId, email, verificationLink) {
+async function trackEmail(id, email, verificationLink, verificationToken) {
+  console.log("Inside trackEmail and the values are ", "id= ", id, "email= ", email, "verificationLink= ", verificationLink, "verificationToken= ", verificationToken);
   const query = {
-    text: 'INSERT INTO email_tracking (user_id, email, verification_link) VALUES ($1, $2, $3)',
-    values: [userId, email, verificationLink],
+    text: 'INSERT INTO email_trackings (id, email, verificationLink,verificationToken) VALUES ($1, $2, $3, $4)',
+    values: [id, email, verificationLink, verificationToken],
   };
   await pool.query(query);
 }
