@@ -21,14 +21,26 @@ async function verifyEmail(userData) {
     const { id, email } = userData;
 
     const token = uuidv4();
+    
+    await trackEmail(id, email, verificationLink, token);
+    console.log(`Email tracking performed for email= ${email}, and token= ${token}`);
+
     const verificationLink = `http://rushikeshdeore.me/verify?token=${token}&userId=${id}`;
     // const verificationLink = `http://localhost:3000/verify?token=${token}&userId=${id}`;
 
     await sendVerificationEmail(email, verificationLink);
+    console.log(`Verification email sent to email= ${email}`);
 
+    // if (response.statusCode === 200) {
+    //   await trackEmail(id, email, verificationLink, token);
+    //   console.log(`Email tracking performed for email= ${email}, and token= ${token}`);
+    // }
+    // else {
+    //   console.error('Failed to send verification email.');
+    // }
     // Track the sent email in Cloud SQL
-    await trackEmail(id, email, verificationLink, token);
-    console.log(`Verification email sent to ${email}`);
+    
+    
   } catch (error) {
     console.error('Error verifying the user:', error);
     throw new Error('Error verifying the user:');
@@ -42,7 +54,7 @@ async function sendVerificationEmail(email, verificationLink) {
     from: `WebApp User <no-reply@${process.env.MAILGUN_DOMAIN}>`,
     to: email,
     subject: "Verify Your Email Address for Webapp Access",
-    html: `<p>Click <a href="${verificationLink}" style="background-color: #4CAF50; /* Green */
+    html: `<p>Click <a href="${verificationLink}&timestamp=${Date.now()}" style="background-color: #4CAF50; /* Green */
     border: none;
     color: white;
     padding: 5px 5px;
