@@ -21,7 +21,7 @@ async function verifyEmail(userData) {
     const { id, email } = userData;
 
     const token = uuidv4();
-    const verificationLink = `http://rushikeshdeore.me:3000/verify?token=${token}&userId=${id}`;
+    const verificationLink = `https://rushikeshdeore.me/verify?token=${token}&userId=${id}`;
 
     await trackEmail(id, email, verificationLink, token);
     console.log(`Email tracking performed for email= ${email}, and token= ${token}`);
